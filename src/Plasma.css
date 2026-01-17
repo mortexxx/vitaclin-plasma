@@ -1,7 +1,143 @@
 /* src/Plasma.css */
+
+/* ================ PLASMA GLOBAL DE FUNDO ================= */
+
+/* Container onde o OGL vai enfiar o <canvas> */
 .plasma-container {
-  position: relative;
+  position: fixed;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background: #020617;
+}
+
+/* Garante que o conteúdo do site fica ACIMA do plasma */
+.page,
+.plasma-intro-root,
+.site-header,
+.page-main,
+footer,
+.intro-content {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ================ INTRO (TELA DE BOAS-VINDAS) ================= */
+
+/* Wrapper da intro – é o <div className="plasma-intro-root"> do App.jsx */
+.plasma-intro-root {
+  position: fixed;
+  inset: 0;
+  min-height: 100vh;
+  width: 100%;
+  background: #020617;
+  color: #f9fafb;
+  display: grid;
+  place-items: center;
+  padding: 32px 20px 40px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Conteúdo da intro (Vitaclin Saúde + botão) */
+.intro-content {
+  position: relative;
+  z-index: 5;
+  max-width: 520px;
+  width: min(560px, 92vw);
+  text-align: center;
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.75);
+}
+
+/* "Vitaclin Saúde" em cima, com cápsula discreta */
+.intro-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.intro-pill span {
+  margin-left: 6px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Título */
+.intro-title {
+  margin: 0 0 10px;
+  font-size: clamp(24px, 6vw, 30px);
+  line-height: 1.2;
+  font-weight: 700;
+  color: #f9fafb;
+}
+
+.intro-highlight {
+  color: #22c55e; /* 15% de desconto em verde */
+}
+
+/* Subtítulo */
+.intro-sub {
+  margin: 0 0 26px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+/* Botão “Seja bem-vindo” */
+.intro-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 36px;
+  border-radius: 999px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ecfdf5;
+  background: radial-gradient(
+    circle at 50% 0%,
+    #bbf7d0 0,
+    #22c55e 55%,
+    #16a34a 100%
+  );
+  box-shadow:
+    0 18px 40px rgba(34, 197, 94, 0.55),
+    0 0 0 1px rgba(15, 118, 110, 0.4);
+  cursor: pointer;
+  transform: translateY(0);
+  transition:
+    transform 0.12s ease-out,
+    box-shadow 0.12s ease-out,
+    filter 0.12s ease-out;
+}
+
+.intro-button:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow:
+    0 10px 26px rgba(34, 197, 94, 0.45),
+    0 0 0 1px rgba(22, 163, 74, 0.5);
+  filter: brightness(0.97);
+}
+
+@media (min-width: 768px) {
+  .plasma-intro-root {
+    justify-content: center;
+  }
 }
