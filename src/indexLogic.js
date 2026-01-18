@@ -119,11 +119,12 @@ function splitTextAndAnimate(target, options) {
 
     gsap.killTweensOf(chars);
 
-    const fromVars = Object.assign({}, opts.from);
+    const fromVars = Object.assign({}, opts.from, { force3D: true });
     const toVars = Object.assign({}, opts.to, {
       duration: opts.duration,
       ease: opts.ease,
       stagger: opts.delay,
+      force3D: true,
     });
 
     if (opts.useScrollTrigger && window.ScrollTrigger) {
@@ -148,7 +149,11 @@ function splitTextAndAnimate(target, options) {
       };
     }
 
-    gsap.fromTo(chars, fromVars, toVars);
+    const tween = gsap.fromTo(chars, fromVars, toVars);
+
+    tween.eventCallback("onComplete", () => {
+      gsap.set(chars, { x: 0, y: 0, clearProps: "transform" });
+    });
   });
 }
 
@@ -1253,11 +1258,11 @@ const MagicProcedures = {
   _initialized: false,
 
   init() {
-    if (this._initialized) return;
-    this._initialized = true;
-
     const cards = document.querySelectorAll(".proc-block");
     if (!cards.length) return;
+
+    if (this._initialized) return;
+    this._initialized = true;
 
     cards.forEach((card) => {
       if (!card.style.getPropertyValue("--glow-intensity")) {
@@ -1968,6 +1973,18 @@ if (typeof window !== "undefined" && !window.__VITACLIN_INDICACOES_BOOT__) {
     }
 
     window.updateDock = updateDock;
+
+    // garante init do MagicProcedures ao entrar na etapa 3 (quando o DOM já está presente)
+    window.addEventListener("vitaclin:stepchange", (ev) => {
+      const step = Number(ev?.detail?.step);
+      if (step === 3) {
+        requestAnimationFrame(() => {
+          if (typeof MagicProcedures !== "undefined" && MagicProcedures.init) {
+            MagicProcedures.init();
+          }
+        });
+      }
+    });
 
     window.addEventListener("load", () => {
       updateDock(1);
