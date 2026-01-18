@@ -19,7 +19,30 @@ if (typeof window !== "undefined") {
 /* ========== SPLIT TEXT / ANIMAÇÕES ========== */
 function splitTextForAnimation(el) {
   if (!el || !window.gsap) return [];
-  if (el.dataset.splitInit === "1") {
+
+  // guarda o original 1x (pra reconstruir quando React reatribuir texto)
+  if (!el.dataset.splitOriginal) {
+    el.dataset.splitOriginal = el.innerHTML;
+  }
+
+  const hasSplit = !!el.querySelector(".split-char");
+  const hasRawText = Array.from(el.childNodes).some(
+    (n) => n.nodeType === Node.TEXT_NODE && (n.textContent || "").trim().length
+  );
+
+  // se estava splitado, mas voltou texto puro (React/HMR), refaz do zero
+  if (el.dataset.splitInit === "1" && hasSplit && hasRawText) {
+    el.innerHTML = el.dataset.splitOriginal;
+    delete el.dataset.splitInit;
+  }
+
+  // se já está splitado limpo, só retorna
+  if (el.dataset.splitInit === "1" && hasSplit) {
+    Array.from(el.childNodes).forEach((n) => {
+      if (n.nodeType !== Node.TEXT_NODE) return;
+      const t = n.textContent || "";
+      if (t.trim().length) n.remove();
+    });
     return Array.from(el.querySelectorAll(".split-char"));
   }
 
@@ -35,12 +58,13 @@ function splitTextForAnimation(el) {
     parts.forEach((part) => {
       if (!part) return;
       if (/^\s+$/.test(part)) {
-        parent.appendChild(document.createTextNode(part));
+        parent.appendChild(document.createTextNode("\u00A0"));
         return;
       }
       const wordSpan = document.createElement("span");
       wordSpan.className = "split-word";
       parent.appendChild(wordSpan);
+
       for (let i = 0; i < part.length; i++) {
         const chSpan = document.createElement("span");
         chSpan.className = "split-char";
@@ -92,6 +116,8 @@ function splitTextAndAnimate(target, options) {
   Array.from(elements).forEach((el) => {
     const chars = splitTextForAnimation(el);
     if (!chars.length) return;
+
+    gsap.killTweensOf(chars);
 
     const fromVars = Object.assign({}, opts.from);
     const toVars = Object.assign({}, opts.to, {
@@ -411,9 +437,12 @@ const App = {
     if (typeof Carousel !== "undefined" && Carousel) {
       if (targetStep === 2) {
         setTimeout(() => {
+          // ✅ garante que o DOM da etapa 2 já existe
+          Carousel.init && Carousel.init();
           Carousel.recalcWidth && Carousel.recalcWidth();
           Carousel.update && Carousel.update();
         }, 0);
+
         Carousel.startAutoplay && Carousel.startAutoplay();
       } else {
         Carousel.stopAutoplay && Carousel.stopAutoplay();
@@ -1043,6 +1072,7 @@ const Carousel = {
   timer: null,
   slideWidth: 0,
   isTouchDragging: false,
+  _inited: false,
 
   recalcWidth() {
     const container = document.getElementById("benefitsCarousel");
@@ -1068,6 +1098,11 @@ const Carousel = {
   init() {
     const container = document.getElementById("benefitsCarousel");
     if (!container) return;
+    // evita duplicar listeners/estrutura se já inicializado e com itens
+    if (this._inited && container.querySelector(".carousel-track")?.children?.length) {
+      return;
+    }
+    this._inited = true;
     const track = container.querySelector(".carousel-track");
     const indicators = container.querySelector(".carousel-indicators");
     if (!track || !indicators) return;
