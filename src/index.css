@@ -724,6 +724,28 @@ nav.dock-nav a:focus-visible {
   opacity: 0.8;
 }
 
+/* “Estrelas” / pontinhos verdes — não usa ::after nos cards com border-glow */
+.magic-bento-procedures .magic-bento-card:not(.magic-bento-card--border-glow)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(74, 222, 128, .45) 0 2px, transparent 3px),
+    radial-gradient(circle at 24% 62%, rgba(34, 197, 94, .30) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 38% 34%, rgba(45, 212, 191, .28) 0 1.2px, transparent 3px),
+    radial-gradient(circle at 52% 78%, rgba(74, 222, 128, .30) 0 1.8px, transparent 3px),
+    radial-gradient(circle at 66% 22%, rgba(34, 197, 94, .32) 0 1.6px, transparent 3px),
+    radial-gradient(circle at 78% 58%, rgba(45, 212, 191, .22) 0 1.3px, transparent 3px),
+    radial-gradient(circle at 86% 30%, rgba(74, 222, 128, .40) 0 2px, transparent 3px),
+    radial-gradient(circle at 90% 82%, rgba(34, 197, 94, .28) 0 1.4px, transparent 3px);
+  filter: blur(0.2px);
+}
+
 .procedures-shell-header {
   position: relative;
   z-index: 1;
