@@ -13,57 +13,6 @@
   --radius-lg: 18px;
 }
 
-/* =========================================================
-   FIX DEFINITIVO — garante a BORDA GLOW no Vercel
-   (evita conflito com qualquer ::after que exista)
-   Cole no FINAL do index.css
-========================================================= */
-
-/* 1) Mata QUALQUER ::after genérico dos cards dentro do Step 3 */
-.step-section[data-step="3"] .magic-bento-procedures .magic-bento-card::after{
-  content: none !important;
-  display: none !important;
-}
-
-/* 2) Recria o ::after APENAS pro card com border glow (o certo) */
-.step-section[data-step="3"] .magic-bento-procedures
-.magic-bento-card.magic-bento-card--border-glow::after{
-  content: "" !important;
-  display: block !important;
-
-  position: absolute !important;
-  inset: 0 !important;
-  padding: 6px !important;
-  border-radius: inherit !important;
-  pointer-events: none !important;
-
-  background: radial-gradient(
-    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-    rgba(var(--glow-color, 34, 197, 94), calc(var(--glow-intensity) * 0.85)) 0%,
-    rgba(var(--glow-color, 34, 197, 94), calc(var(--glow-intensity) * 0.45)) 30%,
-    transparent 60%
-  ) !important;
-
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0) !important;
-  mask-composite: subtract !important;
-
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0) !important;
-  -webkit-mask-composite: xor !important;
-
-  z-index: 5 !important;
-  opacity: 1 !important;
-}
-
-/* 3) Garante conteúdo acima do glow */
-.step-section[data-step="3"] .magic-bento-procedures .magic-bento-card > *{
-  position: relative !important;
-  z-index: 6 !important;
-}
-
 /* ✅ STEP 3: tira o efeito animado atrás do "Serviços..." (box grande) */
 .step-section[data-step="3"] .procedures-shell::before,
 .step-section[data-step="3"] .procedures-shell::after{
@@ -773,28 +722,6 @@ nav.dock-nav a:focus-visible {
     radial-gradient(circle at 75% 120%, rgba(34, 197, 94, 0.7) 0%, transparent 60%);
   animation: star-orbit 5.6s linear infinite reverse;
   opacity: 0.8;
-}
-
-/* “Estrelas” / pontinhos verdes — não usa ::after nos cards com border-glow */
-.magic-bento-procedures .magic-bento-card:not(.magic-bento-card--border-glow)::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.35;
-  background-repeat: no-repeat;
-  background-image:
-    radial-gradient(circle at 12% 18%, rgba(74, 222, 128, .45) 0 2px, transparent 3px),
-    radial-gradient(circle at 24% 62%, rgba(34, 197, 94, .30) 0 1.5px, transparent 3px),
-    radial-gradient(circle at 38% 34%, rgba(45, 212, 191, .28) 0 1.2px, transparent 3px),
-    radial-gradient(circle at 52% 78%, rgba(74, 222, 128, .30) 0 1.8px, transparent 3px),
-    radial-gradient(circle at 66% 22%, rgba(34, 197, 94, .32) 0 1.6px, transparent 3px),
-    radial-gradient(circle at 78% 58%, rgba(45, 212, 191, .22) 0 1.3px, transparent 3px),
-    radial-gradient(circle at 86% 30%, rgba(74, 222, 128, .40) 0 2px, transparent 3px),
-    radial-gradient(circle at 90% 82%, rgba(34, 197, 94, .28) 0 1.4px, transparent 3px);
-  filter: blur(0.2px);
 }
 
 .procedures-shell-header {

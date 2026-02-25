@@ -405,7 +405,6 @@ const ParticleCard = forwardRef(({
       style={{ ...style, position: "relative", overflow: "hidden" }}
     >
       {children}
-      <span className="mb-border-glow-ring" aria-hidden="true" />
     </div>
   );
 });
