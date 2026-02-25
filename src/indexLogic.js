@@ -377,6 +377,49 @@ const Utils = {
   },
 };
 
+const Email = {
+  allowedDomains: new Set([
+    "gmail.com",
+    "hotmail.com",
+    "outlook.com",
+    "live.com",
+    "yahoo.com",
+    "yahoo.com.br",
+    "icloud.com",
+    "me.com",
+    "proton.me",
+    "protonmail.com",
+    "uol.com.br",
+    "bol.com.br",
+    "terra.com.br",
+    "globo.com",
+  ]),
+
+  isValidFormat(email) {
+    const v = (email || "").trim();
+    if (!v) return true; // opcional
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+  },
+
+  normalize(email) {
+    return (email || "").trim().toLowerCase();
+  },
+
+  getDomain(email) {
+    const v = this.normalize(email);
+    const at = v.lastIndexOf("@");
+    if (at < 0) return "";
+    return v.slice(at + 1);
+  },
+
+  isAllowedDomain(email) {
+    const v = (email || "").trim();
+    if (!v) return true; // opcional
+    const domain = this.getDomain(v);
+    return this.allowedDomains.has(domain);
+  },
+};
+
 /* ========== APP PRINCIPAL ========== */
 const App = {
   init: () => {
@@ -603,6 +646,7 @@ const App = {
     const instaSemEspaco = instaRaw.replace(/\s+/g, "");
     const instaLimpo = instaSemEspaco.replace(/^@+/, "");
     const nascStr = document.getElementById("nascIndicador").value.trim();
+    const email = (document.getElementById("emailIndicador").value || "").trim();
 
     if (!nome) return alert("Preencha o seu nome completo.");
 
@@ -625,6 +669,17 @@ const App = {
     const minAno = hoje.getFullYear() - 110;
     if (nascDate.getFullYear() < minAno || nascDate > hoje) {
       return alert("Data de nascimento fora do intervalo permitido.");
+    }
+
+    if (email) {
+      if (!Email.isValidFormat(email)) {
+        return alert("E-mail inválido. Verifique o formato (ex: nome@dominio.com).");
+      }
+      if (!Email.isAllowedDomain(email)) {
+        return alert(
+          "E-mail não aceito. Use um domínio conhecido (ex: gmail.com, hotmail.com, outlook.com)."
+        );
+      }
     }
 
     // Normaliza o campo para @usuario

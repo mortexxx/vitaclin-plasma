@@ -1,5 +1,5 @@
 // src/MagicBento.jsx
-import { useRef, useEffect, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, useState, Children, cloneElement, forwardRef } from "react";
 import { gsap } from "gsap";
 import "./MagicBento.css";
 
@@ -183,7 +183,7 @@ const runThemeWave = (hostEl, clientX, clientY, theme) => {
   });
 };
 
-const ParticleCard = ({
+const ParticleCard = forwardRef(({
   children,
   className = "",
   disableAnimations = false,
@@ -195,7 +195,8 @@ const ParticleCard = ({
   enableMagnetism = false,
   spotlightRadius = DEFAULT_SPOTLIGHT_RADIUS,
   onCenterThemeToggle,
-}) => {
+  enableCenterThemeToggle = true,
+}, externalRef) => {
   const cardRef = useRef(null);
   const particlesRef = useRef([]);
   const timeoutsRef = useRef([]);
@@ -360,7 +361,7 @@ const ParticleCard = ({
       const lx = p.clientX - rect.left;
       const ly = p.clientY - rect.top;
 
-      if (isCenterPress(lx, ly, rect, 0.42)) {
+      if (enableCenterThemeToggle && isCenterPress(lx, ly, rect, 0.42)) {
         onCenterThemeToggle?.(p.clientX, p.clientY, element);
       }
     };
@@ -388,18 +389,27 @@ const ParticleCard = ({
     glowColor,
     spotlightRadius,
     onCenterThemeToggle,
+    enableCenterThemeToggle,
   ]);
+
+  const setRefs = (node) => {
+    cardRef.current = node;
+    if (typeof externalRef === "function") externalRef(node);
+    else if (externalRef) externalRef.current = node;
+  };
 
   return (
     <div
-      ref={cardRef}
+      ref={setRefs}
       className={`${className} particle-container`}
       style={{ ...style, position: "relative", overflow: "hidden" }}
     >
       {children}
     </div>
   );
-};
+});
+
+ParticleCard.displayName = "ParticleCard";
 
 const GlobalSpotlight = ({
   gridRef,
@@ -547,6 +557,8 @@ const MagicBento = ({
   glowColor,
   clickEffect = true,
   enableMagnetism = true,
+  enableCenterThemeToggle = true,
+  enableThemeCycle = true,
   children,
 }) => {
   const gridRef = useRef(null);
@@ -561,12 +573,14 @@ const MagicBento = ({
 
   // aplica tema inicial quando montar/alterar
   useEffect(() => {
+    if (!enableThemeCycle) return;
     if (!gridRef.current) return;
     const host = findThemeHost(gridRef.current);
     applyThemeToHost(host, getTheme(themeIndex));
-  }, [themeIndex]);
+  }, [themeIndex, enableThemeCycle]);
 
   const onCenterThemeToggle = (clientX, clientY, sourceEl) => {
+    if (!enableThemeCycle) return;
     const host = findThemeHost(sourceEl || gridRef.current);
     const next = (themeIndex + 1) % THEMES.length;
     const theme = getTheme(next);
@@ -583,6 +597,26 @@ const MagicBento = ({
   };
 
   const resolvedGlow = glowColor || getTheme(themeIndex).glow;
+
+  const enhanceChild = (child) => {
+    if (!child || typeof child !== "object" || !child.props) return child;
+
+    const extra = {};
+
+    if (enableCenterThemeToggle === false) {
+      extra.enableCenterThemeToggle = false;
+    }
+
+    if (child.props.onCenterThemeToggle === undefined) {
+      extra.onCenterThemeToggle = enableCenterThemeToggle ? onCenterThemeToggle : undefined;
+    }
+
+    return Object.keys(extra).length ? cloneElement(child, extra) : child;
+  };
+
+  const renderedChildren = children
+    ? Children.map(children, enhanceChild)
+    : cardData.map(renderCardFromData);
 
   const renderCardFromData = (card, index) => {
     const baseClassName = `magic-bento-card ${
@@ -608,6 +642,7 @@ const MagicBento = ({
           enableMagnetism={enableMagnetism}
           spotlightRadius={spotlightRadius}
           onCenterThemeToggle={onCenterThemeToggle}
+          enableCenterThemeToggle={enableCenterThemeToggle}
         >
           <div className="magic-bento-card__header">
             <div className="magic-bento-card__label">{card.label}</div>
@@ -646,14 +681,7 @@ const MagicBento = ({
       )}
 
       <BentoCardGrid gridRef={gridRef}>
-        {children ? (
-          // Se você passa children (seu caso: Procedimentos/Atendimentos),
-          // ainda assim precisamos que o toque do centro funcione:
-          // então “marca” os cards existentes adicionando listener por delegação leve.
-          children
-        ) : (
-          cardData.map(renderCardFromData)
-        )}
+        {renderedChildren}
       </BentoCardGrid>
 
       {/* Se estiver usando children custom (seu grid), precisamos “ativar” os cards de dentro

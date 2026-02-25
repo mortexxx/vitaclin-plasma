@@ -13,6 +13,27 @@
   --radius-lg: 18px;
 }
 
+/* ✅ STEP 3: tira o efeito animado atrás do "Serviços..." (box grande) */
+.step-section[data-step="3"] .procedures-shell::before,
+.step-section[data-step="3"] .procedures-shell::after{
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background-image: none !important;
+  opacity: 0 !important;
+}
+
+/* ✅ Fundo do box grande controlado por variável (mais claro) */
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures{
+  background: var(--svc-outer, linear-gradient(135deg, var(--accent) 0%, #0f766e 40%, var(--accent-dark) 100%)) !important;
+  background-image: none !important;
+}
+
+/* ✅ Fundo dos cards (mais escuro) controlado por variável */
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures .magic-bento-card{
+  background: var(--svc-inner, #05251c) !important;
+}
+
 
 * {
   box-sizing: border-box;
@@ -2207,4 +2228,5 @@ body[data-phase="blob"] .page { opacity: 0; transform: translateY(12px); animati
       padding-bottom: 0 !important;
       margin-bottom: 0 !important;
     }
+
 

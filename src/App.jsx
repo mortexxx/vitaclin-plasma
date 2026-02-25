@@ -1,5 +1,6 @@
 // src/App.jsx
 import { useEffect, useState, useRef } from "react";
+import { gsap } from "gsap";
 import "./index.css";
 import "./App.css";
 import MagicBento, { ParticleCard } from "./MagicBento";
@@ -15,12 +16,198 @@ import AnimatedContent from "./AnimatedContent";
 function MainProgram() {
   const [pageReady, setPageReady] = useState(false);
   const [transitionActive, setTransitionActive] = useState(false);
+  const [svcTheme, setSvcTheme] = useState("green");
+  const servicesShellRef = useRef(null);
+  const procCardRef = useRef(null);
+  const atendCardRef = useRef(null);
   const pendingStepRef = useRef(null);
   const currentStepRef = useRef(1);
   const stepAnimatingRef = useRef(false);
   const cancelStepAnimRef = useRef(null);
   const transitionLockRef = useRef(false);
   const activeTransitionIdRef = useRef(0);
+
+  const THEME = {
+    green:  { outer: "#1f8f72", inner: "#05251c", label: "rgb(34,197,94)",  glow: "34,197,94" },
+    orange: { outer: "#c8742a", inner: "#2b1606", label: "rgb(249,115,22)", glow: "249,115,22" },
+    blue:   { outer: "#2f6fe0", inner: "#071c3a", label: "rgb(56,189,248)",  glow: "56,189,248" },
+    purple: { outer: "#6e56e8", inner: "#1b0e35", label: "rgb(167,80,255)", glow: "167,80,255" },
+    pink:   { outer: "#e0559a", inner: "#3b1026", label: "rgb(244,114,182)",glow: "244,114,182" },
+  };
+
+  const THEME_GLOW = {
+    green:  "34, 197, 94",
+    orange: "249, 115, 22",
+    blue:   "56, 189, 248",
+    purple: "167, 80, 255",
+    pink:   "244, 114, 182",
+  };
+
+  const ORDER = ["green", "orange", "blue", "purple", "pink"];
+  const WAVE_MS = 3200;
+  const FADE_MS = 380;
+
+  const animateCardsInAfterWave = () => {
+    const proc = procCardRef.current;
+    const atend = atendCardRef.current;
+    if (!proc && !atend) return;
+
+    const procHeader = proc?.querySelector(".magic-bento-card__header");
+    const procContent = proc?.querySelector(".magic-bento-card__content");
+    const atendHeader = atend?.querySelector(".magic-bento-card__header");
+    const atendContent = atend?.querySelector(".magic-bento-card__content");
+
+    const procTargets = [procHeader, procContent].filter(Boolean);
+    const atendTargets = [atendHeader, atendContent].filter(Boolean);
+    const allTargets = [...procTargets, ...atendTargets];
+    if (!allTargets.length) return;
+
+    gsap.killTweensOf(allTargets);
+
+    if (procTargets.length) {
+      gsap.set(procTargets, { opacity: 0, x: -26 });
+    }
+    if (atendTargets.length) {
+      gsap.set(atendTargets, { opacity: 0, x: 26 });
+    }
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    if (procTargets.length) {
+      tl.to(procTargets, { opacity: 1, x: 0, duration: 0.6, stagger: 0.08 }, 0);
+    }
+    if (atendTargets.length) {
+      tl.to(atendTargets, { opacity: 1, x: 0, duration: 0.6, stagger: 0.08 }, 0.06);
+    }
+  };
+
+  // anima o cash box inteiro da etapa 3 vindo da direita
+  const animateStep3ShellIn = () => {
+    const el = document.getElementById("servicesShell");
+    if (!el) return;
+
+    gsap.killTweensOf(el);
+
+    gsap.set(el, {
+      opacity: 0,
+      x: 60,
+      willChange: "transform, opacity",
+    });
+
+    gsap.to(el, {
+      opacity: 1,
+      x: 0,
+      duration: 0.75,
+      ease: "power3.out",
+      clearProps: "transform,opacity,willChange",
+    });
+  };
+
+  const cycleServicesTheme = () => {
+    const shell = servicesShellRef.current;
+    if (!shell) return;
+
+    const curr = svcTheme;
+    const next = ORDER[(ORDER.indexOf(curr) + 1) % ORDER.length];
+    const t = THEME[next] || THEME.green;
+
+    shell.style.setProperty("--next-outer", t.outer);
+    shell.style.setProperty("--next-inner", t.inner);
+    shell.style.setProperty("--next-label", t.label);
+    shell.style.setProperty("--next-glow",  t.glow);
+
+    const sr = shell.getBoundingClientRect();
+    const originX = sr.left + sr.width / 2;
+    const originY = sr.top  + sr.height / 2;
+
+    const sx = originX - sr.left;
+    const sy = originY - sr.top;
+    shell.style.setProperty("--sx", `${sx}px`);
+    shell.style.setProperty("--sy", `${sy}px`);
+
+    const shellCorners = [
+      [0, 0],
+      [sr.width, 0],
+      [0, sr.height],
+      [sr.width, sr.height],
+    ];
+    const srmax = Math.max(...shellCorners.map(([x, y]) => Math.hypot(x - sx, y - sy)));
+    shell.style.setProperty("--srmax", `${Math.ceil(srmax)}px`);
+
+    const cards = Array.from(shell.querySelectorAll(".magic-bento-card"));
+    cards.forEach((card) => {
+      const cr = card.getBoundingClientRect();
+      const ox = originX - cr.left;
+      const oy = originY - cr.top;
+
+      const corners = [
+        [0, 0],
+        [cr.width, 0],
+        [0, cr.height],
+        [cr.width, cr.height],
+      ];
+      const rmax = Math.max(...corners.map(([x, y]) => Math.hypot(x - ox, y - oy)));
+
+      card.style.setProperty("--ox", `${ox}px`);
+      card.style.setProperty("--oy", `${oy}px`);
+      card.style.setProperty("--rmax", `${Math.ceil(rmax)}px`);
+    });
+
+    shell.classList.remove("svc-ripple-on", "svc-ripple-off");
+    void shell.offsetWidth;
+    shell.classList.add("svc-ripple-on");
+
+    clearTimeout(shell.__svcCommitT);
+    clearTimeout(shell.__svcOffT);
+    clearTimeout(shell.__svcCleanupT);
+
+    shell.__svcCommitT = window.setTimeout(() => {
+      shell.style.setProperty("--svc-outer", t.outer);
+      shell.style.setProperty("--svc-inner", t.inner);
+      shell.style.setProperty("--svc-label", t.label);
+      shell.style.setProperty("--svc-glow",  t.glow);
+
+      setSvcTheme(next);
+      try { localStorage.setItem("vitaclin_services_theme", next); } catch {}
+
+      requestAnimationFrame(() => {
+        animateCardsInAfterWave();
+      });
+    }, WAVE_MS);
+
+    shell.__svcOffT = window.setTimeout(() => {
+      shell.classList.add("svc-ripple-off");
+    }, WAVE_MS + 10);
+
+    shell.__svcCleanupT = window.setTimeout(() => {
+      shell.classList.remove("svc-ripple-on", "svc-ripple-off");
+    }, WAVE_MS + FADE_MS + 60);
+  };
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("vitaclin_services_theme");
+      if (saved) setSvcTheme(saved);
+    } catch {}
+  }, []);
+
+  const theme = THEME[svcTheme] || THEME.green;
+  const glowRgb = THEME_GLOW[svcTheme] || THEME_GLOW.green;
+
+  useEffect(() => {
+    const el = servicesShellRef.current;
+    if (!el) return;
+
+    el.style.setProperty("background-color", theme.outer, "important");
+    el.style.setProperty("background-image", "none", "important");
+    el.style.setProperty("--svc-outer", theme.outer);
+    el.style.setProperty("--svc-inner", theme.inner);
+    el.style.setProperty("--svc-label", theme.label || `rgb(${glowRgb})`);
+    el.style.setProperty("--svc-glow", theme.glow || glowRgb);
+    el.style.setProperty("--next-outer", theme.outer);
+    el.style.setProperty("--next-inner", theme.inner);
+    el.style.setProperty("--next-label", theme.label || `rgb(${glowRgb})`);
+    el.style.setProperty("--next-glow", theme.glow || glowRgb);
+  }, [svcTheme, theme, glowRgb]);
 
   const syncDock = (step) => {
     const links = document.querySelectorAll("nav.dock-nav a[data-step]");
@@ -223,6 +410,12 @@ function MainProgram() {
     window.dispatchEvent(
       new CustomEvent("vitaclin:stepchange", { detail: { step: numericStep } })
     );
+
+    if (numericStep === 3) {
+      requestAnimationFrame(() => {
+        animateStep3ShellIn();
+      });
+    }
 
     // opcional: dispara animações GSAP legadas da etapa
     requestAnimationFrame(() => {
@@ -598,16 +791,35 @@ function MainProgram() {
             estética onde o programa de indicação pode gerar benefício.
           </p>
 
-          <div className="procedures-shell magic-bento-procedures">
+          <div
+            id="servicesShell"
+            ref={servicesShellRef}
+            className={`procedures-shell magic-bento-procedures theme-${svcTheme}`}
+            style={{
+              "--glow-color": glowRgb,
+            }}
+          >
+            <div className="svc-ripple" />
             <div className="procedures-shell-header">
               <h3>Serviços em que o desconto pode ser aplicado</h3>
               <p>
                 Passe o mouse (no computador) ou toque (no celular) em cada
                 bloco para ver o brilho verde.
               </p>
+              {/* ✅ Botões: troca só as cores do box grande + cards */}
+              <div style={{ marginTop: 10 }}>
+                <button
+                  type="button"
+                  onClick={cycleServicesTheme}
+                  className="svc-theme-btn"
+                >
+                  Aperte aqui !
+                </button>
+              </div>
             </div>
 
             <MagicBento
+              key={svcTheme}
               textAutoHide={false}
               enableStars={true}
               enableSpotlight={true}
@@ -617,15 +829,19 @@ function MainProgram() {
               clickEffect={true}
               spotlightRadius={260}
               particleCount={10}
-              glowColor="34, 197, 94"
+              glowColor={glowRgb}
+              enableThemeCycle={false}
+              enableCenterThemeToggle={false}
             >
               <div className="procedures-grid">
                 <ParticleCard
+                  key={`proc-${svcTheme}`}
+                  ref={procCardRef}
                   className="magic-bento-card magic-bento-card--border-glow procedimentos-card"
                   enableTilt
                   enableMagnetism
                   clickEffect
-                  glowColor="34, 197, 94"
+                  glowColor={glowRgb}
                 >
                   <div className="magic-bento-card__header">
                     <div className="magic-bento-card__label">Procedimentos</div>
@@ -650,11 +866,13 @@ function MainProgram() {
                 </ParticleCard>
 
                 <ParticleCard
+                  key={`aten-${svcTheme}`}
+                  ref={atendCardRef}
                   className="magic-bento-card magic-bento-card--border-glow"
                   enableTilt
                   enableMagnetism
                   clickEffect
-                  glowColor="34, 197, 94"
+                  glowColor={glowRgb}
                 >
                   <div className="magic-bento-card__header">
                     <div className="magic-bento-card__label">Atendimentos</div>
@@ -851,7 +1069,8 @@ function MainProgram() {
               <div className="text-content">
                 Lembre-se: para que os descontos sejam aplicados, você também
                 precisa orientar seus indicados a seguir o Instagram oficial
-                @vitaclinsaude antes do atendimento.
+                @vitaclinsaude antes do atendimento. Documentos e indicações
+                serão verificados na recepção.
               </div>
             </div>
 

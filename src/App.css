@@ -77,3 +77,309 @@
   color: #e5e7eb;
   text-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
 }
+
+/* =========================
+   THEME SWITCH (Procedimentos / Atendimentos)
+   - 1ª cor = base (cash box grande)
+   - 2ª cor = cards (Procedimentos/Atendimentos)
+   ========================= */
+
+.procedures-shell.magic-bento-procedures {
+  /* padrão atual (VERDE) — NÃO muda o resto */
+  --outer-bg: #0c3b2c; /* base */
+  --card-bg:  #05251c; /* cards */
+  --card-bg2: #064e3b; /* opcional (se algo usar) */
+}
+
+/* LARANJA + LARANJA ESCURO */
+.procedures-shell.magic-bento-procedures[data-theme="orange"] {
+  --outer-bg: #2b1606;
+  --card-bg:  #1a0c03;
+  --card-bg2: #3a1a07;
+}
+
+/* AZUL + AZUL ESCURO */
+.procedures-shell.magic-bento-procedures[data-theme="blue"] {
+  --outer-bg: #071c3a;
+  --card-bg:  #061227;
+  --card-bg2: #0b2b5c;
+}
+
+/* ROSA + ROSA ESCURO */
+.procedures-shell.magic-bento-procedures[data-theme="pink"] {
+  --outer-bg: #3a0a2a;
+  --card-bg:  #200616;
+  --card-bg2: #5a1a42;
+}
+
+/* aplica a cor da BASE (cashbox grande) */
+.procedures-shell.magic-bento-procedures {
+  background: var(--outer-bg) !important;
+  background-image: none !important;
+}
+
+/* aplica a cor dos 2 CARDS (Procedimentos/Atendimentos) */
+.procedures-shell.magic-bento-procedures .procedures-grid .magic-bento-card {
+  background: var(--card-bg) !important;
+}
+
+/* layout dos botões (só aparência/posição) */
+.proc-theme-row{
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.proc-theme-row .btn-outline{
+  border-color: rgba(255,255,255,0.35);
+  color: #ecfdf5;
+}
+.proc-theme-row .btn-outline:hover{
+  border-color: rgba(255,255,255,0.55);
+}
+
+/* ===== FIX FINAL: fundo do SERVIÇOS (não pode ficar transparente/bege) ===== */
+#servicesShell{
+  background-color: #0c3b2c !important;  /* verde base (serviços) */
+  background-image: none !important;
+}
+
+/* temas: SERVIÇOS (mais claro) */
+#servicesShell.theme-green  { background-color: #1f8f72 !important; }
+#servicesShell.theme-orange { background-color: #8a4a18 !important; } /* laranja mais claro (melhor) */
+#servicesShell.theme-blue   { background-color: #1f4aa0 !important; } /* azul mais claro */
+#servicesShell.theme-purple { background-color: #4b3a86 !important; } /* roxo mais claro */
+#servicesShell.theme-pink   { background-color: #8a3a62 !important; } /* rosa mais claro */
+
+/* remove o efeito mexendo no SERVIÇOS (estrelas/gradiente animado) */
+#servicesShell::before,
+#servicesShell::after{
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+}
+
+/* =========================
+   THEME FIX: bordas/"margem" e brilhos seguirem o tema (Step 3)
+   ========================= */
+
+.step-section[data-step="3"] #servicesShell{
+  /* borda do CAIXÃO “Serviços” (a margem que fica verde) */
+  border: 1px solid rgba(var(--glow-color), 0.28) !important;
+  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.55) !important;
+}
+
+/* borda das DUAS caixas (Procedimentos/Atendimentos) */
+.step-section[data-step="3"] #servicesShell .magic-bento-card{
+  border: 1px solid rgba(var(--glow-color), 0.35) !important;
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.35),
+    0 0 0 1px rgba(0,0,0,0.12) !important;
+}
+
+/* quando passa o mouse: glow do card (antes era verde fixo) */
+.step-section[data-step="3"] #servicesShell .magic-bento-card--border-glow:hover{
+  box-shadow:
+    0 4px 20px rgba(15, 118, 110, 0.25),
+    0 0 30px rgba(var(--glow-color), 0.45) !important;
+}
+
+/* se o título “Procedimentos/Atendimentos” estiver verde fixo, deixa seguir o tema */
+.step-section[data-step="3"] #servicesShell .magic-bento-card__label{
+  color: rgb(var(--glow-color)) !important;
+}
+
+/* =========================
+   THEME OVERRIDE FINAL (SERVIÇOS + CARDS)
+   força TUDO seguir a cor do tema (inclusive bordas e glow)
+   ========================= */
+
+#servicesShell {
+  /* RGB do tema (muda pelos botões via class theme-xxx) */
+  --svc-glow: 34, 197, 94;
+
+  /* Fundo do box grande (Serviços) */
+  background: var(--svc-outer) !important;
+  background-image: none !important;
+}
+
+/* Mata os enfeites animados do BOX GRANDE (Serviços) */
+#servicesShell::before,
+#servicesShell::after {
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+  background: none !important;
+  opacity: 0 !important;
+}
+
+/* ✅ FORÇA as variáveis que controlam as “margens”/glow */
+#servicesShell,
+#servicesShell .magic-bento,
+#servicesShell .magic-bento-card {
+  --glow-color: var(--svc-glow) !important;
+  --bento-glow-rgb: var(--svc-glow) !important;
+  --border-color: rgba(var(--svc-glow), 0.35) !important;
+}
+
+/* Cards de cima (Procedimentos/Atendimentos): fundo escuro do tema */
+#servicesShell .magic-bento-card {
+  background: var(--svc-inner) !important;
+  border-color: rgba(var(--svc-glow), 0.35) !important;
+}
+
+/* Se existir qualquer borda extra no shell */
+#servicesShell {
+  border-color: rgba(var(--svc-glow), 0.25) !important;
+}
+
+/* =========================
+   TEMAS (Serviços claro / Cards escuro / Glow RGB)
+   ========================= */
+#servicesShell.theme-green  { --svc-outer:#1f8f72; --svc-inner:#05251c; --svc-glow:34, 197, 94; --svc-label:rgb(34,197,94); }
+#servicesShell.theme-orange { --svc-outer:#c8742a; --svc-inner:#2b1606; --svc-glow:249, 115, 22; --svc-label:rgb(249,115,22); }
+#servicesShell.theme-blue   { --svc-outer:#2f6fe0; --svc-inner:#071c3a; --svc-glow:56, 189, 248; --svc-label:rgb(56,189,248); }
+#servicesShell.theme-purple { --svc-outer:#6e56e8; --svc-inner:#1b0e35; --svc-glow:167, 80, 255; --svc-label:rgb(167,80,255); }
+#servicesShell.theme-pink   { --svc-outer:#e0559a; --svc-inner:#3b1026; --svc-glow:244, 114, 182; --svc-label:rgb(244,114,182); }
+
+.svc-theme-btn{
+  background:#fff;
+  border: 1px solid rgba(148,163,184,0.55);
+  color:#111827;
+  border-radius: 999px;
+  padding:10px 16px;
+  font-weight:800;
+  cursor: pointer;
+}
+.svc-theme-btn:active{
+  transform: translateY(1px);
+}
+
+#servicesShell{
+  background: var(--svc-outer) !important;
+  --outer-bg: var(--svc-outer) !important;
+  --card-bg: var(--svc-inner) !important;
+  background-image: none !important;
+}
+
+#servicesShell::before,
+#servicesShell::after{
+  content:none !important;
+  display:none !important;
+  animation:none !important;
+  background:none !important;
+  opacity:0 !important;
+}
+
+#servicesShell .procedures-shell-header,
+#servicesShell .magic-bento,
+#servicesShell .card-grid,
+#servicesShell .procedures-grid{
+  position: relative;
+  z-index: 2;
+}
+
+#servicesShell .magic-bento-card{
+  background: var(--svc-inner) !important;
+  --glow-color: var(--svc-glow) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#servicesShell .magic-bento-card__label{
+  color: var(--svc-label) !important;
+}
+
+#servicesShell .svc-ripple{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  opacity:0;
+  background: var(--next-outer);
+  clip-path: circle(0px at var(--sx, 50%) var(--sy, 50%));
+  transform: translateZ(0);
+  will-change: clip-path, opacity;
+}
+
+#servicesShell .magic-bento-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  z-index:1;
+  opacity:0;
+  background: var(--next-inner);
+  clip-path: circle(0px at var(--ox, 50%) var(--oy, 50%));
+  transform: translateZ(0);
+}
+
+#servicesShell.svc-ripple-on .svc-ripple{
+  opacity: 1;
+  animation: svcWave 3200ms cubic-bezier(0.22,0.61,0.36,1) forwards;
+}
+
+#servicesShell.svc-ripple-on .magic-bento-card::before{
+  opacity: 1;
+  animation: svcWaveCard 3200ms cubic-bezier(0.22,0.61,0.36,1) forwards;
+}
+
+@keyframes svcWave{
+  0%   { clip-path: circle(0px at var(--sx) var(--sy)); }
+  100% { clip-path: circle(var(--srmax, 9999px) at var(--sx) var(--sy)); }
+}
+
+@keyframes svcWaveCard{
+  0%   { clip-path: circle(0px at var(--ox) var(--oy)); }
+  100% { clip-path: circle(var(--rmax, 999px) at var(--ox) var(--oy)); }
+}
+
+/* fade-out suave pós-onda */
+#servicesShell.svc-ripple-off .svc-ripple{
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+#servicesShell.svc-ripple-off .magic-bento-card::before{
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+/* =========================
+   REVEAL NO FINAL (SEM SUMIR DURANTE A ONDA)
+   ========================= */
+
+/* Estado "armado" (fica invisível) — MAS só vai ser ligado quando a onda já cobriu */
+#servicesShell.svc-reveal-arm .magic-bento-card__header,
+#servicesShell.svc-reveal-arm .magic-bento-card__content{
+  opacity: 0 !important;
+  will-change: transform, opacity;
+}
+
+/* Direção: Procedimentos vem da esquerda */
+#servicesShell.svc-reveal-arm .procedimentos-card .magic-bento-card__header,
+#servicesShell.svc-reveal-arm .procedimentos-card .magic-bento-card__content{
+  transform: translate3d(-18px, 0, 0) !important;
+}
+
+/* Direção: Atendimentos vem da direita */
+#servicesShell.svc-reveal-arm .magic-bento-card:not(.procedimentos-card) .magic-bento-card__header,
+#servicesShell.svc-reveal-arm .magic-bento-card:not(.procedimentos-card) .magic-bento-card__content{
+  transform: translate3d(18px, 0, 0) !important;
+}
+
+/* Disparo do reveal */
+#servicesShell.svc-reveal-go .magic-bento-card__header,
+#servicesShell.svc-reveal-go .magic-bento-card__content{
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) !important;
+  transition:
+    transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 520ms ease;
+}
+
+/* título entra levemente antes da lista (premium) */
+#servicesShell.svc-reveal-go .magic-bento-card__content{
+  transition-delay: 90ms;
+}

@@ -1,0 +1,85 @@
+/* =========================================================
+	 THEMES — 3 CAIXAS (Serviços base + 2 cards)
+	 - Serviços (base): cor mais clara
+	 - Cards (Procedimentos/Atendimentos): cor mais escura
+	 - Remove o efeito mexendo no Serviços
+	 ========================================================= */
+
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures{
+	/* default (verde base) */
+	--svc-outer: #0c3b2c; /* Serviços (mais claro) */
+	--svc-inner: #05251c; /* Cards (mais escuro) */
+
+	background: var(--svc-outer) !important;
+}
+
+/* força os dois cards de cima a seguirem a cor escura do tema */
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures .magic-bento-card{
+	background: var(--svc-inner) !important;
+}
+
+/* ===== Temas ===== */
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures.theme-green{
+	--svc-outer: #0c3b2c;
+	--svc-inner: #05251c;
+}
+
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures.theme-orange{
+	--svc-outer: #6a3a14;  /* laranja um pouco mais claro (Serviços) */
+	--svc-inner: #2b1606;  /* laranja escuro (cards) */
+}
+
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures.theme-blue{
+	--svc-outer: #173a73;  /* azul um pouco mais claro (Serviços) */
+	--svc-inner: #071c3a;  /* azul escuro (cards) */
+}
+
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures.theme-purple{
+	--svc-outer: #3a2a6b;  /* roxo um pouco mais claro (Serviços) */
+	--svc-inner: #1b0e35;  /* roxo escuro (cards) */
+}
+
+.step-section[data-step="3"] .procedures-shell.magic-bento-procedures.theme-pink{
+	--svc-outer: #7a2e55;  /* rosa um pouco mais claro (Serviços) */
+	--svc-inner: #3b1026;  /* rosa escuro (cards) */
+}
+
+/* ====== TRAVA FUNDO DO "SERVIÇOS" (CAIXA BASE) ====== */
+#servicesShell{
+	background: var(--svc-outer) !important;
+	background-color: var(--svc-outer) !important;
+	background-image: none !important;
+}
+
+/* tira os enfeites animados que mexem a cor no "Serviços" */
+.step-section[data-step="3"] #servicesShell::before,
+.step-section[data-step="3"] #servicesShell::after{
+	content: none !important;
+	display: none !important;
+	animation: none !important;
+	background: none !important;
+	opacity: 0 !important;
+}
+
+/* cards (Procedimentos/Atendimentos) sempre na cor escura */
+.step-section[data-step="3"] #servicesShell .magic-bento-card{
+	background: var(--svc-inner) !important;
+	background-color: var(--svc-inner) !important;
+}
+
+/* ===== Temas (Serviços claro / Cards escuro) ===== */
+#servicesShell.theme-green{  --svc-outer:#0c3b2c; --svc-inner:#05251c; }
+#servicesShell.theme-orange{ --svc-outer:#6a3a14; --svc-inner:#2b1606; }
+#servicesShell.theme-blue{   --svc-outer:#173a73; --svc-inner:#071c3a; }
+#servicesShell.theme-purple{ --svc-outer:#3a2a6b; --svc-inner:#1b0e35; }
+#servicesShell.theme-pink{   --svc-outer:#7a2e55; --svc-inner:#3b1026; }
+
+/* 🔥 Mata as estrelas animadas do SERVIÇOS (base) */
+.step-section[data-step="3"] #servicesShell::before,
+.step-section[data-step="3"] #servicesShell::after{
+	content: none !important;
+	display: none !important;
+	animation: none !important;
+	background: none !important;
+	opacity: 0 !important;
+}
